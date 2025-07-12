@@ -1,1 +1,1 @@
-Simulare Masina Turing
+**Simulare Masina Turing**
