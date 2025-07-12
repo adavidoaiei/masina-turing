@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+  <meta charset="UTF-8">
+  <title>Simulator Mașină Turing cu Istoric</title>
+  <style>
+    body { font-family: Arial; text-align: center; background: #f4f4f4; }
+    #tape { display: flex; justify-content: center; margin-top: 20px; }
+    .cell {
+      width: 30px; height: 30px; margin: 1px;
+      border: 1px solid #333; background: white;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: bold;
+    }
+    .head {
+      background: #ffe600;
+    }
+    #history {
+      margin-top: 20px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: #fff;
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+      font-size: 14px;
+    }
+    #state {
+      font-weight: bold;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Simulator Mașină Turing</h1>
+  <p>Scop: înlocuiește toate <b>1</b> cu <b>0</b>, apoi se oprește.</p>
+  <div id="tape"></div>
+  <div id="state">Stare curentă: <span id="currentState"></span></div>
+  <button onclick="step()">Pas următor</button>
+  <h3>Istoric tranziții:</h3>
+  <div id="history"></div>
+
+  <script>
+    // Banda inițială
+    const tape = ['1','0','1','1','0','1','_','_','_'];
+    let headPosition = 0;
+    let state = 'start';
+    const tapeDiv = document.getElementById('tape');
+    const historyDiv = document.getElementById('history');
+    const currentStateSpan = document.getElementById('currentState');
+
+    // Istoric tranziții
+    const history = [];
+
+    // Redesenăm banda
+    function renderTape() {
+      tapeDiv.innerHTML = '';
+      tape.forEach((symbol, index) => {
+        const cell = document.createElement('div');
+        cell.className = 'cell';
+        if(index === headPosition) cell.classList.add('head');
+        cell.textContent = symbol;
+        tapeDiv.appendChild(cell);
+      });
+      currentStateSpan.textContent = state;
+    }
+
+    // Adăugăm în istoric
+    function logTransition(action) {
+      const logEntry = `Stare: ${state}, Poziție: ${headPosition}, Simbol: ${tape[headPosition]}, Acțiune: ${action}`;
+      history.push(logEntry);
+      historyDiv.innerHTML = history.map(h => `<div>${h}</div>`).join('');
+    }
+
+    // Reguli de tranziție
+    function step() {
+      if(state === 'halt') {
+        alert('Mașina s-a oprit.');
+        return;
+      }
+
+      const currentSymbol = tape[headPosition];
+      let actionDescription = '';
+
+      if(state === 'start') {
+        if(currentSymbol === '1') {
+          tape[headPosition] = '0';
+          actionDescription = "scrie 0, deplasează capul dreapta";
+          headPosition++;
+        } else if(currentSymbol === '0') {
+          actionDescription = "deplasează capul dreapta";
+          headPosition++;
+        } else if(currentSymbol === '_') {
+          actionDescription = "oprește mașina";
+          state = 'halt';
+        }
+      }
+
+      logTransition(actionDescription);
+      renderTape();
+    }
+
+    renderTape();
+  </script>
+</body>
+</html>
